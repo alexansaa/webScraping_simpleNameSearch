@@ -36,3 +36,5 @@ poetry.lock
 
 # Windows
 Thumbs.db
+
+libros/

@@ -10,9 +10,10 @@ repositorio = base + '/browse/scores/top#books-last1'
 directorio = 'libros'
 names_file_name = 'libros_nombres.txt'
 
+regExpresion = r'[^0-9a-zA-Z\s]+'
+
 def salir():
     print("Saliendo...")
-    # Add any exit code here if needed
     exit()
 
 def descargar_archivos():
@@ -39,7 +40,7 @@ def descargar_archivos():
             book_content = requests.get(download_url).text
             
             book_title = book_link.text.split('by')[0].strip()
-            book_title_text_only = re.sub(r'[^a-zA-Z\s]', '', book_title)
+            book_title_text_only = re.sub(regExpresion, '', book_title)
 
             filename = os.path.join(directorio, f"{book_title_text_only}.txt")  # Modificación aquí
             with open(filename, 'w', encoding='utf-8') as f:
@@ -107,8 +108,6 @@ def busqueda_avanzada():
     return sorted_files
 
 def obtener_nombres():
-    names_file_name
-
     print("Obteniendo nombres de archivos...")
     response = requests.get(repositorio)
     html_text = response.text
@@ -116,17 +115,15 @@ def obtener_nombres():
     soup = BeautifulSoup(html_text, 'html.parser')
     h2_element = soup.find('h2', text='Top 100 EBooks yesterday')
     book_list = h2_element.find_next('ol').find_all('a')
-
-    if not os.path.exists('libros'):
-        os.makedirs('libros')
     
     for book_link in book_list:
         book_title = book_link.text.split('by')[0].strip()
-        book_title = book_title + ".txt" + "\n"
+        book_title_text_only = re.sub(regExpresion, '', book_title)
+        book_title_text_only = book_title_text_only + ".txt" + "\n"
 
-        names_file_path = os.path.join(directorio, names_file_name)
+        names_file_path = os.path.join(names_file_name)
         with open(names_file_path, 'a', encoding='utf-8') as f:
-            f.write(book_title)
+            f.write(book_title_text_only)
         print('Nombres de archivos guardados')
 
     pass
