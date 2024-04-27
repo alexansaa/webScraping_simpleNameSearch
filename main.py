@@ -64,13 +64,15 @@ def realizar_busqueda():
     for filename in os.listdir(directorio):
         if filename.endswith('.txt'):
             print("Buscando en {}".format(filename))
-            with open(os.path.join(directorio, filename), 'r') as file:
-                contenido = file.read().lower()
+            with open(os.path.join(directorio, filename), 'r', encoding='utf-8') as file:
+                file_text = re.sub(regExpresion, '', file.read())
+                contenido = file_text.lower()
                 # Busca la palabra en el contenido del archivo
                 if palabra_a_buscar in contenido:
                     archivos_con_palabra.append(filename)
 
     print("FINALIZO LA BUSQUEDA")
+    print("---------------------------------")
     print("\n\n\n")
 
     tiempo_final = time.time()
@@ -89,21 +91,25 @@ def realizar_busqueda():
 
 def busqueda_avanzada():
     print("Realizando búsqueda avanzada...")
+    query = input("Ingrese la expresión regular que desea buscar: ")
+
+
     file_matches = defaultdict(int)
 
-    files = os.listdir(directory)
+    files = os.listdir(directorio)
 
     pattern = re.compile(query, re.IGNORECASE)
 
     for file_name in files:
-        with open(os.path.join(directory, file_name), 'r', encoding='utf-8') as file:
+        with open(os.path.join(directorio, file_name), 'r', encoding='utf-8') as file:
             content = file.read()
-
         matches = re.findall(pattern, content)
-
         file_matches[file_name] = len(matches)
-
     sorted_files = sorted(file_matches.items(), key=lambda x: x[1], reverse=True)
+
+    print("Los archivos que contienen la expresión regular son:")
+    for file_name, matches in sorted_files:
+        print(f"{file_name}: {matches} matches")
 
     return sorted_files
 
