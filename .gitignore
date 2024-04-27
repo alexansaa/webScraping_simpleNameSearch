@@ -1,0 +1,38 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Ignore pipenv or poetry virtual environment folders
+.venv
+Pipfile.lock
+poetry.lock
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and Databases
+*.log
+*.sqlite3
+*.db
+
+# Compiled Python files
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
