@@ -12,6 +12,10 @@ names_file_name = 'libros_nombres.txt'
 
 regExpresion = r'[^0-9a-zA-Z\s]+'
 
+# variables de requerimiento DEBER 2
+inverted_index = {}
+libros = []
+
 def salir():
     print("Saliendo...")
     exit()
@@ -134,13 +138,55 @@ def obtener_nombres():
 
     pass
 
+def load_book_names():
+    names_file_path = os.path.join(names_file_name)
+    with open(names_file_path, 'r', encoding='utf-8') as f:
+        return f.readlines()
+
+def obtener_indice_invertido():
+    print("Obteniendo índice invertido...")
+    
+    global libros
+    for libro_id, libro in enumerate(libros):
+        words = libro.split()
+        for word in words:
+            global inverted_index
+            if word not in inverted_index:
+                inverted_index[word] = set()
+            inverted_index[word].add(libro_id)
+
+    print("imprimiendo indice invertido: ")
+    for key, value in inverted_index.items():
+        print(key, ':', value)
+    pass
+
+def deber_dos_menu():
+    inMenuDeberDos = True
+    while inMenuDeberDos:
+        print("\n--- Menú Deber 2---")
+        print("1. Obtener Indice Invertido")
+        print("2. Regresar al menú principal")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            obtener_indice_invertido()
+
+        elif opcion == "2":
+            inMenuDeberDos = False
+        else:
+            print("Opción inválida. Por favor, seleccione una opción válida.")
+
+    pass
+
 def mostrar_menu():
     print("\n--- Menú ---")
     print("1. Descargar archivos")
-    print("2. Realizar búsqueda")
-    print("3. Búsqueda avanzada")
-    print("4. Obtener Nombres")
-    print("5. Salir")
+    print("2. Realizar búsqueda simple")
+    print("3. Realizar búsqueda simple con ranqueo de archivos")
+    print("4. Obtener Nombres de archivos")
+    print("5. Metodos Deber 2")
+    print("6. Salir")
 
 def main():
     print("****Bienvenido****")
@@ -157,6 +203,17 @@ def main():
         elif opcion == "4":
             obtener_nombres()
         elif opcion == "5":
+            global libros
+            libros = load_book_names()
+            # print("Libros cargados")
+            # for libro in libros:
+            #     print(libro)
+
+            if libros:
+                deber_dos_menu()
+            else:
+                print("Primero debe descargar los archivos!!!")
+        elif opcion == "6":
             salir()
         else:
             print("Opción inválida. Por favor, seleccione una opción válida.")
