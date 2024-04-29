@@ -5,6 +5,20 @@ import re
 from collections import defaultdict
 from bs4 import BeautifulSoup
 
+# importaciones DEBER 2
+import operator
+
+ops = {
+    "AND": operator.and_,
+    "OR": operator.or_,
+    "NOT": operator.not_,
+}
+prior = {
+    "AND": 1,
+    "OR": 1,
+    "NOT": 2,
+}
+
 base = 'https://www.gutenberg.org'
 repositorio = base + '/browse/scores/top#books-last1'
 directorio = 'libros'
@@ -160,19 +174,88 @@ def obtener_indice_invertido():
         print(key, ':', value)
     pass
 
+def parseEval(string):
+    content = string.split()
+    for priorMode in range(maxPrior+1):
+        print(content)
+        subParse = []
+        subParse = []
+        for ind,cont in enumerate(content):
+            if cont in ops:
+                priorLev = prior[cont]
+                if priorLev <= priorMode:
+                    condA = content[ind-1]
+                    condB = content[ind+1]
+                    subParse.append(ops[cont](condA,condB))
+                else:
+                    subParse.append(cont)   
+        content = subParse
+    print(content)
+    return subParse[0]
+
+def busqueda_matricial_con_operadores():
+    print("Realizando búsqueda matricial con operadores...")
+    print("ingrese las palabras a buscar separadas por espacios junto los operadores AND, OR, NOT (recuerde que NOT debe precederse con un OR o un AND)")
+    # print("las prioridades de los operadores son NOT, AND, OR")
+    query = input("Ingrese la expresion a buscar (ej: juan and pedro or not zapato): ")
+    tokens = re.findall(r'\b(?!and\b|or\b|not\b)\w+\b', query)
+    content = re.findall(r'\b\w+\b|[()]|[and|or|not]+', query)
+
+    cols = len(libros)
+    rows = len(tokens)
+
+    matrix = []
+
+    for i, token in enumerate(tokens):
+        tmp_row = [False for _ in range(cols)]
+        if token in inverted_index:
+            print("token in inverted_index: ", token)
+            for j in inverted_index[token]:
+                tmp_row[j] = True
+        matrix.append(tmp_row)
+
+    print(matrix)
+
+    found_books = []
+
+    for i in range(cols):
+        token_names = tokens
+        token_values = [matrix[j][i] for j in range(rows)]
+
+        token_map = {name: value for name, value in zip(token_names, token_values)}
+
+        content_temp = [token_map.get(token, token) for token in content]
+
+        expression = ' '.join(map(str, content_temp))
+        result = eval(expression)
+        if result:
+            found_books.append(libros[i])
+
+    print("Los libros que cumplen con la expresión son:", found_books)
+    
+    
+
+
+    pass
+
 def deber_dos_menu():
     inMenuDeberDos = True
     while inMenuDeberDos:
         print("\n--- Menú Deber 2---")
         print("1. Obtener Indice Invertido")
-        print("2. Regresar al menú principal")
+        print("2. Realizar búsqueda matricial con operadores")
+        print("3. Regresar al menú principal")
 
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
             obtener_indice_invertido()
-
         elif opcion == "2":
+            if(inverted_index == {}):
+                print("Primero debe obtener el índice invertido!!!")
+            else:
+                print(busqueda_matricial_con_operadores())
+        elif opcion == "3":
             inMenuDeberDos = False
         else:
             print("Opción inválida. Por favor, seleccione una opción válida.")
