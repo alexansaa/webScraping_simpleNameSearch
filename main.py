@@ -162,42 +162,51 @@ def obtener_indice_invertido():
     
     global libros
     for libro_id, libro in enumerate(libros):
-        words = libro.split()
-        for word in words:
-            global inverted_index
-            if word not in inverted_index:
-                inverted_index[word] = set()
-            inverted_index[word].add(libro_id)
+        file = os.path.join(directorio, libro.strip())
+        try:
+            with open(file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                content = re.sub(regExpresion, '', content)
+                words = content.split()
+                for word in words:
+                    global inverted_index
+                    if word not in inverted_index:
+                        inverted_index[word] = set()
+                    inverted_index[word].add(libro_id)
+        except:
+            print(f"Error al abrir el archivo {file}. No existe o no se puede leer.")
+            continue
 
-    print("imprimiendo indice invertido: ")
-    for key, value in inverted_index.items():
-        print(key, ':', value)
+    # print("imprimiendo indice invertido: ")
+    # for key, value in inverted_index.items():
+    #     print(key, ':', value)
     pass
 
-def parseEval(string):
-    content = string.split()
-    for priorMode in range(maxPrior+1):
-        print(content)
-        subParse = []
-        subParse = []
-        for ind,cont in enumerate(content):
-            if cont in ops:
-                priorLev = prior[cont]
-                if priorLev <= priorMode:
-                    condA = content[ind-1]
-                    condB = content[ind+1]
-                    subParse.append(ops[cont](condA,condB))
-                else:
-                    subParse.append(cont)   
-        content = subParse
-    print(content)
-    return subParse[0]
+# def parseEval(string):
+#     content = string.split()
+#     for priorMode in range(maxPrior+1):
+#         print(content)
+#         subParse = []
+#         subParse = []
+#         for ind,cont in enumerate(content):
+#             if cont in ops:
+#                 priorLev = prior[cont]
+#                 if priorLev <= priorMode:
+#                     condA = content[ind-1]
+#                     condB = content[ind+1]
+#                     subParse.append(ops[cont](condA,condB))
+#                 else:
+#                     subParse.append(cont)   
+#         content = subParse
+#     print(content)
+#     return subParse[0]
 
 def busqueda_matricial_con_operadores():
     print("Realizando búsqueda matricial con operadores...")
     print("ingrese las palabras a buscar separadas por espacios junto los operadores AND, OR, NOT (recuerde que NOT debe precederse con un OR o un AND)")
     # print("las prioridades de los operadores son NOT, AND, OR")
     query = input("Ingrese la expresion a buscar (ej: juan and pedro or not zapato): ")
+    query = re.sub(r'[^\w\s]', '', query)
     tokens = re.findall(r'\b(?!and\b|or\b|not\b)\w+\b', query)
     content = re.findall(r'\b\w+\b|[()]|[and|or|not]+', query)
 
@@ -222,21 +231,30 @@ def busqueda_matricial_con_operadores():
         token_names = tokens
         token_values = [matrix[j][i] for j in range(rows)]
 
+        print("my token names: ", token_names)
+        print("my token values: ", token_values)
+
+        # token_map = {name: value for name, value in zip(token_names, token_values)}
         token_map = {name: value for name, value in zip(token_names, token_values)}
+        print("my token map: ", token_map)
 
         content_temp = [token_map.get(token, token) for token in content]
+
+
+        print("my content map: ", content_temp)
 
         expression = ' '.join(map(str, content_temp))
         result = eval(expression)
         if result:
-            found_books.append(libros[i])
+            tpm_name = libros[i]
+            tpm_name = tpm_name.rstrip("\n")
+            found_books.append(tpm_name)
+
+        # aqui se implementa el diccionario rankeado
 
     print("Los libros que cumplen con la expresión son:", found_books)
-    
-    
 
-
-    pass
+    return found_books
 
 def deber_dos_menu():
     inMenuDeberDos = True
